@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIỆT NAM TRƯỚC VÀ SAU NĂM 1986</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CSS VARIABLES (BIẾN MÀU SẮC) --- */
+        :root {
+            --primary-color: #7D2808;
+            --secondary-color: #333333;
+            --background-page: #f9f6f0;
+            --background-card: #ffffff;
+            --header-font: 'Merriweather', serif;
+            --body-font: 'Roboto', sans-serif;
+            --zone-before: #C08D73;
+            --zone-after: #778899;
+        }
+
+        /* --- STYLES CHUNG --- */
+        body {
+            font-family: var(--body-font);
+            background: var(--background-page);
+            margin: 0;
+            padding: 20px 10px; 
+            color: var(--secondary-color);
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-family: var(--header-font);
+            font-size: 2.5em; 
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            text-align: center;
+            color: #555555;
+            font-weight: 400;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        /* --- INPUTS & BUTTON --- */
+        .top-box {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            padding: 12px 15px;
+            font-size: 1em;
+            border: 2px solid #D7C6B7;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s;
+            width: 200px;
+            background: #ffffff;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1em;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover { background: #5A1F07; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3); }
+        button:active { transform: scale(0.98); }
+
+        /* --- CARD POOL --- */
+        .pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #F1EFEA;
+            border-radius: 8px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+            min-height: 100px;
+        }
+
+        /* --- THẺ (CARD) --- */
+        .card {
+            padding: 12px 18px; 
+            background: var(--background-card);
+            border: 1px solid #D4CCC1;
+            border-radius: 3px;
+            cursor: grab; /* Giữ cursor: grab cho desktop */
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s, opacity 0.2s;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        /* Hiệu ứng khi thẻ được chọn (Tap-to-move) */
+        .card.selected {
+            outline: 3px solid #FFD700;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
+            cursor: pointer !important; /* Thay đổi cursor khi chọn */
+        }
+
+        /* --- KHU VỰC THẢ (BOARD) --- */
+        .board {
+            display: flex;
+            justify-content: center;
+            gap: 20px; 
+            flex-wrap: wrap;
+        }
+
+        .zone {
+            width: 450px;
+            min-height: 350px; 
+            padding: 20px;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 0 0 8px #E8E2D7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px; 
+            text-align: center;
+            transition: outline 0.3s, background 0.3s;
+        }
+
+        .zone h2 {
+            font-family: var(--header-font);
+            margin-top: 0;
+            padding-bottom: 8px;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--primary-color);
+            border-bottom: 2px solid #EEE;
+            width: 100%;
+        }
+        
+        /* Tô sáng vùng thả khi có thẻ được chọn (Tap-to-move) */
+        .zone.can-drop {
+            outline: 4px dashed var(--primary-color);
+            background: #ffe3d8;
+            cursor: pointer;
+        }
+        
+        /* Highlight khi kéo qua (Desktop Drag-over) */
+        .zone.drag-over {
+            box-shadow: 0 4px 20px rgba(125, 40, 8, 0.7), 0 0 0 8px #FFD700;
+        }
+
+        .zone:first-child .card, .zone:last-child .card {
+            width: 95%;
+            text-align: left;
+        }
+
+        /* --- RESPONSIVE OPTIMIZATION (ÁP DỤNG CHO MÀN HÌNH NHỎ <= 768px) --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 5px;
+            }
+            .top-box, .board {
+                flex-direction: column;
+                align-items: center;
+            }
+            .zone {
+                width: 95%;
+                min-height: 250px;
+                margin-bottom: 15px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), 0 0 0 5px #E8E2D7;
+            }
+            input, button {
+                width: 95%;
+                font-size: 0.9em;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h3 {
+                font-size: 1em;
+            }
+            .card {
+                font-size: 0.9em;
+                padding: 10px 15px;
+                cursor: pointer; /* Thay thế grab bằng pointer trên mobile */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📜 VIỆT NAM TRƯỚC VÀ SAU NĂM 1986 📜</h1>
+<h3>Hãy sắp xếp các thẻ lịch sử đúng Trước & Sau 1986</h3>
+
+<form action="https://formsubmit.co/el/YOURCODE" method="POST" onsubmit="return tinhDiemVaGui()">
+
+    <div class="top-box">
+        <input type="text" name="ten" id="ten" placeholder="👤 Tên người tham gia" required>
+        <input type="email" name="email" placeholder="📧 Email người làm bài" required>
+        <input type="hidden" name="_to" value="tringuyen4001@gmail.com"> 
+        <button type="submit">LƯU KẾT QUẢ VÀO HỒ SƠ ✅</button>
+    </div>
+
+    <input type="hidden" name="Kết quả chi tiết" id="ketqua">
+    <input type="hidden" name="_captcha" value="false">
+
+    <div class="pool" id="pool"></div>
+
+    <div class="board">
+        <div class="zone" id="before">
+            <h2>TRƯỚC 1986</h2>
+        </div>
+        <div class="zone" id="after">
+            <h2>SAU 1986</h2>
+        </div>
+    </div>
+</form>
+
+<script>
+const RAW_DATA = [
+    {text:"Sản xuất theo chỉ tiêu kế hoạch", type:"before"}, {text:"Sản xuất điều chỉnh theo nhu cầu thị trường", type:"after"},
+    {text:"Giá cả do Nhà nước ban hành", type:"before"}, {text:"Giá cả hình thành theo cơ chế thị trường", type:"after"},
+    {text:"Doanh nghiệp chủ yếu theo mô hình quốc doanh", type:"before"}, {text:"Xuất hiện nhiều loại hình doanh nghiệp khác nhau", type:"after"},
+    {text:"Phân phối theo tem phiếu, định mức", type:"before"}, {text:"Phân phối theo cơ chế mua bán", type:"after"},
+    {text:"Quản lý bằng chỉ đạo, mệnh lệnh", type:"before"}, {text:"Quản lý hướng tới hiệu lực, phục vụ, minh bạch", type:"after"},
+    {text:"Quyết định tập trung, ít tham vấn", type:"before"}, {text:"Vận hành theo pháp luật, phát huy dân chủ", type:"after"},
+    {text:"Đời sống vật chất và tinh thần hạn chế", type:"before"}, {text:"Đời sống vật chất và tinh thần đa dạng hơn", type:"after"},
+    {text:"Cơ hội học tập, nghề nghiệp bị hạn chế", type:"before"}, {text:"Cơ hội học tập, nghề nghiệp được mở rộng", type:"after"},
+    {text:"Hoạt động văn hóa theo khuôn mẫu tập trung", type:"before"}, {text:"Đời sống văn hóa phong phú, sáng tạo", type:"after"},
+    {text:"Củng cố an ninh trong điều kiện khó khăn", type:"before"}, {text:"Quốc phòng, an ninh củng cố đồng bộ", type:"after"},
+    {text:"Đối ngoại thiên về tự lực, khép kín", type:"before"}, {text:"Đối ngoại đa phương hóa, mở rộng hợp tác", type:"after"},
+    {text:"Việc làm phụ thuộc vào phân bổ hệ thống", type:"before"}, {text:"Thu nhập đến từ thị trường và doanh nghiệp", type:"after"}
+];
+
+const pool = document.getElementById("pool");
+const zoneBefore = document.getElementById("before");
+const zoneAfter = document.getElementById("after");
+const zones = document.querySelectorAll('.zone');
+
+let selectedCard = null; 
+// Kiểm tra xem thiết bị có phải là di động (màn hình hẹp) hay không
+let isMobile = window.matchMedia("(max-width: 768px)").matches; 
+
+// --- Khởi tạo Thẻ và Gắn Events ---
+function initializeCards() {
+    pool.innerHTML = '';
+    const randomizedData = [...RAW_DATA].sort(() => Math.random() - 0.5);
+
+    randomizedData.forEach((item, i) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.textContent = item.text;
+        div.draggable = !isMobile; // Chỉ cho phép kéo thả nếu không phải mobile
+        div.dataset.type = item.type;
+        div.id = "card" + i;
+
+        // Bổ sung sự kiện kéo thả cho Desktop
+        if (!isMobile) {
+            div.addEventListener("dragstart", e => {
+                e.dataTransfer.setData("id", div.id);
+                div.classList.add('dragging');
+            });
+            div.addEventListener("dragend", e => {
+                div.classList.remove('dragging');
+            });
+        }
+        
+        // Gắn sự kiện click/tap cho cả hai nền tảng (sẽ được xử lý khác nhau trong handleCardClick)
+        div.addEventListener('click', handleCardClick);
+
+        pool.appendChild(div);
+    });
+}
+initializeCards();
+
+
+// --- LOGIC NHẤN ĐỂ DI CHUYỂN (TAP-TO-MOVE) CHO DI ĐỘNG ---
+
+function highlightZones(shouldHighlight) {
+    zones.forEach(zone => {
+        if (shouldHighlight) {
+            zone.classList.add('can-drop');
+        } else {
+            zone.classList.remove('can-drop');
+        }
+    });
+    // Tô sáng pool khi có thẻ được chọn
+    if (shouldHighlight) {
+        pool.classList.add('can-drop');
+    } else {
+        pool.classList.remove('can-drop');
+    }
+}
+
+function handleCardClick(e) {
+    // Luôn cho phép người dùng desktop click để hủy chọn/chọn thẻ, nhưng không thay thế Kéo-thả
+    if (!isMobile) {
+        // Nếu là Desktop, chỉ dùng click để select (chế độ tap-to-move ẩn)
+        if (selectedCard) selectedCard.classList.remove('selected');
+        selectedCard = e.currentTarget;
+        selectedCard.classList.add('selected');
+        setTimeout(() => {
+            selectedCard.classList.remove('selected');
+            selectedCard = null;
+        }, 500); // Tự hủy chọn nhanh để không ảnh hưởng Kéo-thả
+        return;
+    }
+
+    // Xử lý Mobile (Tap-to-move)
+    const card = e.currentTarget;
+    
+    if (selectedCard === card) {
+        // Hủy chọn
+        card.classList.remove('selected');
+        selectedCard = null;
+        highlightZones(false);
+    } else {
+        // Chọn thẻ mới
+        if (selectedCard) {
+            selectedCard.classList.remove('selected');
+        }
+        selectedCard = card;
+        card.classList.add('selected');
+        highlightZones(true);
+    }
+}
+
+function handleZoneClick(e) {
+    // Nếu không có thẻ nào được chọn hoặc đang ở chế độ desktop (dùng kéo thả), thoát
+    if (!selectedCard || !isMobile) return;
+
+    const dropZone = e.currentTarget.closest('.zone') || e.currentTarget.closest('.pool');
+    
+    if (dropZone) {
+        // Di chuyển thẻ
+        dropZone.appendChild(selectedCard);
+        
+        // Hủy trạng thái đã chọn
+        selectedCard.classList.remove('selected');
+        selectedCard = null;
+        highlightZones(false);
+    }
+}
+
+// Gắn sự kiện click/tap cho các khu vực thả và pool
+zones.forEach(zone => {
+    zone.addEventListener('click', handleZoneClick);
+});
+pool.addEventListener('click', handleZoneClick);
+
+
+// --- LOGIC KÉO THẢ TRUYỀN THỐNG (DÀNH CHO DESKTOP) ---
+
+function allowDrop(e){ 
+    if (isMobile) return;
+    e.preventDefault(); 
+    let targetZone = e.target.closest('.zone');
+    if (targetZone) {
+        targetZone.classList.add('drag-over');
+    }
+}
+
+function dragLeave(e) {
+    if (isMobile) return;
+    let targetZone = e.target.closest('.zone');
+    if (targetZone) {
+        let rect = targetZone.getBoundingClientRect();
+        if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+            targetZone.classList.remove('drag-over');
+        }
+    }
+}
+
+function drop(e){
+    if (isMobile) return;
+    e.preventDefault();
+    const id = e.dataTransfer.getData("id");
+    const draggedElement = document.getElementById(id);
+    let dropZone = e.target.closest('.zone') || e.target.closest('.pool');
+
+    if (dropZone && draggedElement) {
+        dropZone.appendChild(draggedElement);
+        dropZone.classList.remove('drag-over');
+    }
+}
+
+// Gắn sự kiện kéo thả cho Desktop
+if (!isMobile) {
+    zones.forEach(zone => {
+        zone.ondrop = drop;
+        zone.ondragover = allowDrop;
+        zone.ondragleave = dragLeave;
+    });
+    pool.ondrop = drop;
+    pool.ondragover = allowDrop;
+    pool.ondragleave = dragLeave;
+}
+
+
+// --- Chức năng Chấm điểm và Gửi form ---
+function tinhDiemVaGui(){
+    let dung = 0;
+    let tong = RAW_DATA.length;
+    let tenNguoiChoi = document.getElementById("ten").value || "Khách ẩn danh";
+    let emailNguoiChoi = document.getElementById("email").value || "Không cung cấp";
+    
+    let kqEmail = `KẾT QUẢ CHI TIẾT CỦA ${tenNguoiChoi} (${emailNguoiChoi}):\n\n`;
+    
+    if (pool.children.length > 0) {
+        alert("Vui lòng sắp xếp tất cả các thẻ vào hai cột TRƯỚC hoặc SAU 1986 trước khi gửi!");
+        return false;
+    }
+
+    zoneBefore.querySelectorAll(".card").forEach(c => {
+        let ok = c.dataset.type === "before";
+        if(ok) dung++;
+        kqEmail += "TRƯỚC 1986: " + c.textContent + " | " + (ok ? "ĐÚNG" : "SAI") + "\n";
+    });
+
+    zoneAfter.querySelectorAll(".card").forEach(c => {
+        let ok = c.dataset.type === "after";
+        if(ok) dung++;
+        kqEmail += "SAU 1986: " + c.textContent + " | " + (ok ? "ĐÚNG" : "SAI") + "\n";
+    });
+
+    kqEmail += "\n--- TỔNG KẾT ---\n";
+    kqEmail += `TỔNG ĐÚNG: ${dung}/${tong}\n`;
+    kqEmail += `TỔNG SAI: ${tong - dung}\n`;
+    kqEmail += `ĐIỂM SỐ: ${(dung / tong * 10).toFixed(2)} / 10.00`;
+
+    document.getElementById("ketqua").value = kqEmail;
+    
+    alert(`Hoàn thành, ${tenNguoiChoi}! Bạn đạt ${dung}/${tong} câu đúng. Kết quả chi tiết đã được lưu vào hồ sơ.`);
+
+    return true;
+}
+window.tinhDiemVaGui = tinhDiemVaGui;
+
+</script>
+
+</body>
+</html>
